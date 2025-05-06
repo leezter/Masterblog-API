@@ -88,5 +88,37 @@ def delete_post(post_id):
     return jsonify({"message": f"Post with id {post_id} has been deleted successfully."}), 200
 
 
+@app.route('/api/posts/<int:post_id>', methods=['PUT'])
+def update_post(post_id):
+    """
+    Update a blog post by its ID.
+
+    This endpoint handles PUT requests to update a blog post in the POSTS list.
+    Args:
+        post_id (int): The ID of the post to update.
+    Returns:
+        A JSON response with the updated post if successful, or an error message if the post is not found.
+    """
+    data = request.get_json()
+
+    # Find the post by ID
+    post = None
+    for p in POSTS:
+        if p['id'] == post_id:
+            post = p
+            break
+
+    if not post:
+        return jsonify({"error": f"Post with id {post_id} not found."}), 404
+
+    # Update the post with new values if provided
+    if 'title' in data and data['title'].strip():
+        post['title'] = data['title']
+    if 'content' in data and data['content'].strip():
+        post['content'] = data['content']
+
+    return jsonify(post), 200
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5002, debug=True)

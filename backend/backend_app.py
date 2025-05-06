@@ -61,5 +61,32 @@ def add_post():
     return jsonify(new_post), 201
 
 
+@app.route('/api/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    """
+    Delete a blog post by its ID.
+
+    This endpoint handles DELETE requests to remove a blog post from the POSTS list.
+    Args:
+        post_id (int): The ID of the post to delete.
+    Returns:
+        A JSON response with a success message if the post is deleted, or an error message if the post is not found.
+    """
+    # Find the post by ID
+    post = None
+    for p in POSTS:
+        if p['id'] == post_id:
+            post = p
+            break
+
+    if not post:
+        return jsonify({"error": f"Post with id {post_id} not found."}), 404
+
+    # Remove the post from the list
+    POSTS.remove(post)
+
+    return jsonify({"message": f"Post with id {post_id} has been deleted successfully."}), 200
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5002, debug=True)

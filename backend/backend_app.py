@@ -13,13 +13,32 @@ POSTS = [
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
     """
-    Retrieve all blog posts.
+    Retrieve all blog posts with optional sorting.
 
     This endpoint handles GET requests to fetch all the blog posts stored in the POSTS list.
+    Query Parameters:
+        sort (str): The field to sort by ('title' or 'content').
+        direction (str): The sort order ('asc' or 'desc').
     Returns:
-        A JSON response containing a list of all blog posts.
+        A JSON response containing a list of all blog posts, optionally sorted.
     """
-    return jsonify(POSTS)
+    sort_field = request.args.get('sort')
+    sort_direction = request.args.get('direction', 'asc')
+
+    # Validate sort parameters
+    if sort_field and sort_field not in ['title', 'content']:
+        return jsonify({"error": "Invalid sort field. Must be 'title' or 'content'."}), 400
+
+    if sort_direction not in ['asc', 'desc']:
+        return jsonify({"error": "Invalid sort direction. Must be 'asc' or 'desc'."}), 400
+
+    # Sort posts if sort parameters are provided
+    sorted_posts = POSTS
+    if sort_field:
+        reverse = (sort_direction == 'desc')
+        sorted_posts = sorted(POSTS, key=lambda x: x[sort_field].lower(), reverse=reverse)
+
+    return jsonify(sorted_posts)
 
 
 @app.route('/api/posts', methods=['POST'])
